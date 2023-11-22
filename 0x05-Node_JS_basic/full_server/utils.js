@@ -1,36 +1,31 @@
 /**
- * Contains all the functions that are used to read the database
+ * Functions that are used to read the database
  */
-const fs = require('fs');
 
-const readDatabase = (filePath) => {
-  const filePromise = new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'utf8', (err, data) => {
+
+const { readFile } = require('fs');
+
+module.exports = function readDatabase(filePath) {
+  const students = {};
+  return new Promise((resolve, reject) => {
+    readFile(filePath, (err, data) => {
       if (err) {
         reject(err);
       } else {
-        const studentsArray = data.trim().split('\n').slice(1);
-
-        const students = studentsArray.map((student) => {
-          const fields = student.replace('\r', '').split(',');
-          return fields;
-        });
-
-        const categories = [...new Set(students.map((student) => student[student.length - 1]))];
-
-        const fields = {};
-
-        categories.forEach((category) => {
-          fields[category] = students.filter(
-            (student) => student[student.length - 1] === category,
-          ).map((student) => student[0]);
-        });
-
-        resolve(fields);
+        const lines = data.toString().split('\n');
+        const noHeader = lines.slice(1);
+        for (let i = 0; i < noHeader.length; i += 1) {
+          if (noHeader[i]) {
+            const field = noHeader[i].toString().split(',');
+            if (Object.prototype.hasOwnProperty.call(students, field[3])) {
+              students[field[3]].push(field[0]);
+            } else {
+              students[field[3]] = [field[0]];
+            }
+          }
+        }
+        resolve(students);
       }
     });
   });
-  return filePromise;
 };
-
-module.exports = readDatabase;
