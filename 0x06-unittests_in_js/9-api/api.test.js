@@ -54,5 +54,16 @@ describe('CartPage', () => {
       expect(body).to.contain('Cannot GET /cart/1bc');
     });
   });
+  it('checking correct content type', () => {
+    request('http://localhost:7865/cart/12', (_err, res, _body) => {
+      expect(res.headers['content-type']).to.equal('text/html; charset=utf-8');
+    });
+  });
+
+  it('checking correct content length', () => {
+    request('http://localhost:7865/cart/12', (_err, res, _body) => {
+      expect(res.headers['content-length']).to.equal('27');
+    });
+  });
 
 });
